@@ -1,12 +1,40 @@
-node_modules
-dist
-dist-ssr
-*.local
-.turbo
+# Dependencies
+node_modules/
+.venv/
+
+# Build output
+dist/
+dist-ssr/
+
+# Turbo
+.turbo/
+
+# TypeScript
 *.tsbuildinfo
-.DS_Store
-.vscode
-.idea
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Coverage
+coverage/
+.nyc_output/
+htmlcov/
+.coverage
+.coverage.*
+
+# Local files
+*.local
 *.log
-coverage
-.nyc_output
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
