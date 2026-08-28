@@ -1,0 +1,16 @@
+{
+  "name": "local-ai-control-plane",
+  "private": true,
+  "packageManager": "pnpm@9.10.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^12.0.0",
+    "turbo": "^2.10.12"
+  }
+}
