@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-ssr
+*.local
+.turbo
+*.tsbuildinfo
+.DS_Store
+.vscode
+.idea
+*.log
+coverage
+.nyc_output
