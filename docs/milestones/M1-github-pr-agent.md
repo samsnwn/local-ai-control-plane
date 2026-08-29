@@ -2,11 +2,11 @@
 
 ## Objective
 
-Build the first functional AI agent for the Local AI Control Plane capable of reviewing GitHub Pull Requests and producing actionable code-review findings.
+Build a functional, standalone AI agent capable of reviewing GitHub Pull Requests and producing actionable code-review findings.
 
 M1 is the first product milestone after the M0 foundation.
 
-The primary goal is to validate the core agent capability before expanding the project into a full Control Plane.
+The primary goal is to validate the core agent capability as a standalone component that can be reused in other future projects, while also serving as the first test agent orchestrated by the Control Plane.
 
 ## Goal
 
@@ -46,7 +46,7 @@ Structured Findings
 GitHub Review
 ```
 
-The implementation should remain modular so that the review agent can later be orchestrated by the Control Plane.
+The implementation should remain modular and standalone so that the review agent can run independently, be reused across other projects, or be orchestrated by the Control Plane.
 
 ## Scope
 
