@@ -51,11 +51,30 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Setup Python
+        run: uv python install
+        working-directory: packages/python
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install Python dependencies
+        run: uv sync --frozen
+        working-directory: packages/python
+
       - name: Run linter
         run: pnpm lint
+
+      - name: Run Python linter and formatter check
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+        working-directory: packages/python
 
       - name: Check formatting
         run: pnpm format:check
@@ -63,6 +82,10 @@ jobs:
       # The sync suites create and drop their own database per run.
       - name: Run unit tests
         run: pnpm test
+
+      - name: Run Python unit tests
+        run: uv run pytest
+        working-directory: packages/python
 
     #   - name: Validate infrastructure configs
     #     run: pnpm test:infra
