@@ -1,6 +1,6 @@
 # M1 — GitHub PR Review Agent
 
-## Objective 
+## Objective
 
 Build a functional, standalone AI agent capable of reviewing GitHub Pull Requests and producing actionable code-review findings.
 
