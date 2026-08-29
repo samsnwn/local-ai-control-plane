@@ -79,6 +79,9 @@ jobs:
       - name: Check formatting
         run: pnpm format:check
 
+      - name: Run typecheck
+        run: pnpm typecheck
+
       # The sync suites create and drop their own database per run.
       - name: Run unit tests
         run: pnpm test
@@ -87,8 +90,8 @@ jobs:
         run: uv run pytest
         working-directory: packages/python
 
-    #   - name: Validate infrastructure configs
-    #     run: pnpm test:infra
+      #   - name: Validate infrastructure configs
+      #     run: pnpm test:infra
 
       - name: Build
         run: pnpm build

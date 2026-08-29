@@ -2,7 +2,6 @@ import reactPlugin from "eslint-plugin-react";
 import hooksPlugin from "eslint-plugin-react-hooks";
 import base from "./base.mjs";
 
-
 export default [
   ...base,
   reactPlugin.configs.flat.recommended,
