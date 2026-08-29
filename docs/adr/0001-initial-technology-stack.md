@@ -206,16 +206,16 @@ Use:
 
 The initial MVP stack is:
 
-| Component | Technology |
-|---|---|
-| Control Plane API | NestJS + TypeScript |
-| Control Plane Web | React + Vite + TypeScript |
-| Customer Node API | FastAPI + Python |
-| Node Agent | Python |
-| Control Plane Database | PostgreSQL |
-| Monorepo orchestration | Turborepo |
-| TypeScript package management | pnpm |
-| Infrastructure | Docker / Docker Compose |
+| Component                     | Technology                |
+| ----------------------------- | ------------------------- |
+| Control Plane API             | NestJS + TypeScript       |
+| Control Plane Web             | React + Vite + TypeScript |
+| Customer Node API             | FastAPI + Python          |
+| Node Agent                    | Python                    |
+| Control Plane Database        | PostgreSQL                |
+| Monorepo orchestration        | Turborepo                 |
+| TypeScript package management | pnpm                      |
+| Infrastructure                | Docker / Docker Compose   |
 
 ---
 
