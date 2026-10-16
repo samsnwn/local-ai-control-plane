@@ -38,5 +38,3 @@ htmlcov/
 # Editors
 .vscode/
 .idea/
-
-.config/
