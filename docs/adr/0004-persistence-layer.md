@@ -88,12 +88,36 @@ Rationale:
 ```ts
 // apps/control-plane-api/src/modules/database/schema.ts
 
-import { pgTable, uuid, text, timestamp, jsonb, integer, real, pgEnum } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  jsonb,
+  integer,
+  real,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-export const nodeStatusEnum = pgEnum("node_status", ["pending", "active", "inactive", "unhealthy"]);
-export const reviewRunStatusEnum = pgEnum("review_run_status", ["running", "completed", "failed"]);
-export const findingSeverityEnum = pgEnum("finding_severity", ["info", "low", "medium", "high", "critical"]);
+export const nodeStatusEnum = pgEnum("node_status", [
+  "pending",
+  "active",
+  "inactive",
+  "unhealthy",
+]);
+export const reviewRunStatusEnum = pgEnum("review_run_status", [
+  "running",
+  "completed",
+  "failed",
+]);
+export const findingSeverityEnum = pgEnum("finding_severity", [
+  "info",
+  "low",
+  "medium",
+  "high",
+  "critical",
+]);
 
 export const nodes = pgTable("nodes", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -102,8 +126,12 @@ export const nodes = pgTable("nodes", {
   lastHeartbeat: timestamp("last_heartbeat", { withTimezone: true }),
   softwareVersion: text("software_version"),
   modelMetadata: jsonb("model_metadata"), // flexible node-reported hardware/model info
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const reviewRuns = pgTable("review_runs", {
@@ -111,14 +139,18 @@ export const reviewRuns = pgTable("review_runs", {
   repo: text("repo").notNull(),
   prNumber: integer("pr_number").notNull(),
   status: reviewRunStatusEnum("status").notNull().default("running"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   completedAt: timestamp("completed_at", { withTimezone: true }),
   nodeId: uuid("node_id").references(() => nodes.id),
 });
 
 export const findings = pgTable("findings", {
   id: uuid("id").primaryKey().defaultRandom(),
-  reviewRunId: uuid("review_run_id").notNull().references(() => reviewRuns.id),
+  reviewRunId: uuid("review_run_id")
+    .notNull()
+    .references(() => reviewRuns.id),
   file: text("file").notNull(),
   line: integer("line"),
   severity: findingSeverityEnum("severity").notNull(),
@@ -136,7 +168,10 @@ export const reviewRunsRelations = relations(reviewRuns, ({ one, many }) => ({
 }));
 
 export const findingsRelations = relations(findings, ({ one }) => ({
-  reviewRun: one(reviewRuns, { fields: [findings.reviewRunId], references: [reviewRuns.id] }),
+  reviewRun: one(reviewRuns, {
+    fields: [findings.reviewRunId],
+    references: [reviewRuns.id],
+  }),
 }));
 
 export const schema = { nodes, reviewRuns, findings };
