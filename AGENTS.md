@@ -34,6 +34,14 @@ Useful per-workspace tasks:
 
 `docker compose up -d` starts PostgreSQL 18 (the only service). Copy `.env.example` to `.env` before starting. `.env` is gitignored — never commit it.
 
+## Branch & PR conventions
+
+Branches: `<type>/<issue>-description` — `feat`, `fix`, `docs`, `chore`, `refactor`. Example: `feat/43-node-communication-protocol`. Commits use Conventional Commits: `<type>(<scope>): <description>`. PRs must reference the issue (`Closes #`). CI blocks merge on failure.
+
+## Architecture Decision Records (ADRs)
+
+ADRs live in `docs/adr/`, use `docs/adr/template.md`, sequential four-digit IDs (`0001-`, `0002-`, etc.), statuses: `Proposed`, `Accepted`, `Superseded`, `Deprecated`. Current: `0001` (Accepted), `0002` (Proposed), `0005` (Accepted).
+
 ## Tech quirks
 
 - API imports use `.js` extensions (nodenext module resolution), e.g. `./app.module.js`.
