@@ -23,6 +23,9 @@ __pycache__/
 .env.*
 !.env.example
 
+# Dev certificates
+.dev-certs/
+
 # Coverage
 coverage/
 .nyc_output/
