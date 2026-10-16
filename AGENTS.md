@@ -21,10 +21,10 @@ Monorepo with pnpm workspaces (`apps/*`, `packages/*`) orchestrated by Turborepo
 
 Useful per-workspace tasks:
 
-| Workspace | Dev | Test | Typecheck | Lint | Build |
-|-----------|-----|------|-----------|------|-------|
-| `control-plane-api` | `pnpm --filter control-plane-api run start:dev` (port 3000) | `pnpm --filter control-plane-api run test` (vitest `*.spec.ts`)<br>`pnpm --filter control-plane-api run test:e2e` (supertest) | `pnpm --filter control-plane-api run typecheck` | `pnpm --filter control-plane-api run lint` | `pnpm --filter control-plane-api run build` (`nest build`) |
-| `control-plane-web` | `pnpm --filter control-plane-web run dev` | `pnpm --filter control-plane-web run test` (vitest, jsdom) | `pnpm --filter control-plane-web run typecheck` | `pnpm --filter control-plane-web run lint` | `pnpm --filter control-plane-web run build` (`tsc -b && vite build`) |
+| Workspace           | Dev                                                         | Test                                                                                                                          | Typecheck                                       | Lint                                       | Build                                                                |
+| ------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------- |
+| `control-plane-api` | `pnpm --filter control-plane-api run start:dev` (port 3000) | `pnpm --filter control-plane-api run test` (vitest `*.spec.ts`)<br>`pnpm --filter control-plane-api run test:e2e` (supertest) | `pnpm --filter control-plane-api run typecheck` | `pnpm --filter control-plane-api run lint` | `pnpm --filter control-plane-api run build` (`nest build`)           |
+| `control-plane-web` | `pnpm --filter control-plane-web run dev`                   | `pnpm --filter control-plane-web run test` (vitest, jsdom)                                                                    | `pnpm --filter control-plane-web run typecheck` | `pnpm --filter control-plane-web run lint` | `pnpm --filter control-plane-web run build` (`tsc -b && vite build`) |
 
 ## Verification order
 

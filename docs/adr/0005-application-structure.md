@@ -34,10 +34,12 @@ The system architecture requires that Control Plane and Customer Node applicatio
 ### Option A: Rename to match target structure
 
 Rename:
+
 - `apps/api/` → `apps/control-plane-api/`
 - `apps/web/` → `apps/control-plane-web/`
 
 And reserve:
+
 - `apps/node-agent/` — future Python Node Agent.
 - `apps/node-api/` — future Python FastAPI Node API.
 
