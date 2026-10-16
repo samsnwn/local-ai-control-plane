@@ -51,8 +51,8 @@ Run all development tasks through Turbo:
 
 Run a specific application:
 
-    pnpm --filter api run start:dev
-    pnpm --filter web run dev
+    pnpm --filter control-plane-api run start:dev
+    pnpm --filter control-plane-web run dev
 
 ## Local Infrastructure
 
@@ -101,8 +101,8 @@ Run linting for all workspaces:
 
 Run linting for a specific application:
 
-    pnpm --filter api run lint
-    pnpm --filter web run lint
+    pnpm --filter control-plane-api run lint
+    pnpm --filter control-plane-web run lint
 
 Python uses Ruff:
 
