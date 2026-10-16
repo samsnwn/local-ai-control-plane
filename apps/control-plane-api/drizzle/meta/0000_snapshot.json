@@ -59,12 +59,8 @@
           "name": "findings_review_run_id_review_runs_id_fk",
           "tableFrom": "findings",
           "tableTo": "review_runs",
-          "columnsFrom": [
-            "review_run_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["review_run_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -140,9 +136,7 @@
         "nodes_identity_unique": {
           "name": "nodes_identity_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "identity"
-          ]
+          "columns": ["identity"]
         }
       },
       "policies": {},
@@ -206,12 +200,8 @@
           "name": "review_runs_node_id_nodes_id_fk",
           "tableFrom": "review_runs",
           "tableTo": "nodes",
-          "columnsFrom": [
-            "node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["node_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -227,32 +217,17 @@
     "public.finding_severity": {
       "name": "finding_severity",
       "schema": "public",
-      "values": [
-        "info",
-        "low",
-        "medium",
-        "high",
-        "critical"
-      ]
+      "values": ["info", "low", "medium", "high", "critical"]
     },
     "public.node_status": {
       "name": "node_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "active",
-        "inactive",
-        "unhealthy"
-      ]
+      "values": ["pending", "active", "inactive", "unhealthy"]
     },
     "public.review_run_status": {
       "name": "review_run_status",
       "schema": "public",
-      "values": [
-        "running",
-        "completed",
-        "failed"
-      ]
+      "values": ["running", "completed", "failed"]
     }
   },
   "schemas": {},
