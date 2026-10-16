@@ -49,3 +49,7 @@ ADRs live in `docs/adr/`, use `docs/adr/template.md`, sequential four-digit IDs 
 - Turbo caches `dist/**` and `build/**` outputs; `dev` is persistent and not cached.
 - No ORM or database client is installed in the API yet (`AppModule` has `imports: []`).
 - No shared API contract package exists yet; `packages/eslint-config` is the only shared package.
+
+## Documentation rule
+
+- Always use Context7 when I need library/API documentation, code generation, setup, or configuration steps, without me having to explicitly ask.
