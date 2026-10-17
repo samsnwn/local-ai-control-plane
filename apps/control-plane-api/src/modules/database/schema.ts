@@ -7,6 +7,7 @@ import {
   integer,
   real,
   pgEnum,
+  index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -44,29 +45,41 @@ export const nodes = pgTable('nodes', {
     .defaultNow(),
 });
 
-export const reviewRuns = pgTable('review_runs', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  repo: text('repo').notNull(),
-  prNumber: integer('pr_number').notNull(),
-  status: reviewRunStatusEnum('status').notNull().default('running'),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  completedAt: timestamp('completed_at', { withTimezone: true }),
-  nodeId: uuid('node_id').references(() => nodes.id),
-});
+export const reviewRuns = pgTable(
+  'review_runs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    repo: text('repo').notNull(),
+    prNumber: integer('pr_number').notNull(),
+    status: reviewRunStatusEnum('status').notNull().default('running'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    completedAt: timestamp('completed_at', { withTimezone: true }),
+    nodeId: uuid('node_id').references(() => nodes.id),
+  },
+  (table) => ({
+    nodeIdIdx: index('review_runs_node_id_idx').on(table.nodeId),
+  }),
+);
 
-export const findings = pgTable('findings', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  reviewRunId: uuid('review_run_id')
-    .notNull()
-    .references(() => reviewRuns.id),
-  file: text('file').notNull(),
-  line: integer('line'),
-  severity: findingSeverityEnum('severity').notNull(),
-  confidence: real('confidence').notNull(),
-  message: text('message').notNull(),
-});
+export const findings = pgTable(
+  'findings',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    reviewRunId: uuid('review_run_id')
+      .notNull()
+      .references(() => reviewRuns.id),
+    file: text('file').notNull(),
+    line: integer('line'),
+    severity: findingSeverityEnum('severity').notNull(),
+    confidence: real('confidence').notNull(),
+    message: text('message').notNull(),
+  },
+  (table) => ({
+    reviewRunIdIdx: index('findings_review_run_id_idx').on(table.reviewRunId),
+  }),
+);
 
 export const nodesRelations = relations(nodes, ({ many }) => ({
   reviewRuns: many(reviewRuns),
