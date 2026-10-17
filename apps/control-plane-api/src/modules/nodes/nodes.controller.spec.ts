@@ -40,7 +40,9 @@ describe('NodesController', () => {
       createdAt: new Date(),
     };
 
-    (nodesService.registerNode as ReturnType<typeof vi.fn>).mockResolvedValue(expected);
+    (nodesService.registerNode as ReturnType<typeof vi.fn>).mockResolvedValue(
+      expected,
+    );
 
     const request = {
       nodeCertificate: { fingerprint },
@@ -61,7 +63,9 @@ describe('NodesController', () => {
       createdAt: new Date(),
     };
 
-    (nodesService.registerNode as ReturnType<typeof vi.fn>).mockResolvedValue(expected);
+    (nodesService.registerNode as ReturnType<typeof vi.fn>).mockResolvedValue(
+      expected,
+    );
 
     const request = {
       nodeCertificate: undefined,
@@ -80,8 +84,8 @@ describe('NodesController', () => {
       nodeCertificate: undefined,
     } as unknown as Request & { nodeCertificate?: { fingerprint: string } };
 
-    await expect(
-      controller.registerNode(request, {}),
-    ).rejects.toThrow('No node identity available');
+    await expect(controller.registerNode(request, {})).rejects.toThrow(
+      'No node identity available',
+    );
   });
 });

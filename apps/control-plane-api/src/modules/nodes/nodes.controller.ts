@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { MtlsGuard } from '../auth/mtls.guard.js';
 import { NodesService } from './nodes.service.js';
@@ -24,8 +18,7 @@ export class NodesController {
     @Body() body: RegisterNodeBody,
   ) {
     const cert = request.nodeCertificate as
-      | { fingerprint: string; subject?: Record<string, unknown> }
-      | undefined;
+      { fingerprint: string; subject?: Record<string, unknown> } | undefined;
 
     const fingerprint = cert?.fingerprint ?? body.identity;
 
