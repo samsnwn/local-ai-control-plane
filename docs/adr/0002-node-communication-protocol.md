@@ -97,7 +97,7 @@ Rationale:
 
 ### Implementation notes
 
-- Node registration endpoint: `POST /nodes/register` — accepts node identity, returns short-lived client certificate or registers cert fingerprint.
+- Node registration endpoint: `POST /nodes/register` — the node identity is the SHA-256 fingerprint of the mTLS client certificate; the Control Plane records it on first contact. The endpoint does not accept a self-asserted identity in the request body.
 - mTLS guard on all node-facing API endpoints; rejects connections without a valid client cert.
 - `.env.example` updated with `NODE_TLS_CA_PATH`, `NODE_TLS_CERT_PATH`, `NODE_TLS_KEY_PATH` placeholders (local dev only).
 - No private keys committed to the repository.

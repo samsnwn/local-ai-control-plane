@@ -5,6 +5,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "db:migrate": "pnpm --filter control-plane-api exec drizzle-kit migrate",
+    "db:reset": "docker compose down -v && docker compose up -d --wait --wait-timeout 90 && pnpm db:migrate",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",

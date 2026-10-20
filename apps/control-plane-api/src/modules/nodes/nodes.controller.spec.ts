@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { NodesController } from './nodes.controller.js';
 import { NodesService } from './nodes.service.js';
@@ -32,7 +33,7 @@ describe('NodesController', () => {
   });
 
   it('should register a new node with certificate fingerprint', async () => {
-    const fingerprint = 'SHA256:abc123';
+    const fingerprint = 'ab:cd:ef:12:34:56:78:90';
     const expected = {
       id: 'node-1',
       identity: fingerprint,
@@ -45,47 +46,26 @@ describe('NodesController', () => {
     );
 
     const request = {
-      nodeCertificate: { fingerprint },
-    } as unknown as Request & { nodeCertificate: { fingerprint: string } };
-
-    const result = await controller.registerNode(request, {});
-
-    expect(nodesService.registerNode).toHaveBeenCalledWith(fingerprint);
-    expect(result).toEqual(expected);
-  });
-
-  it('should use body.identity when no certificate fingerprint', async () => {
-    const identity = 'SHA256:from-body';
-    const expected = {
-      id: 'node-2',
-      identity,
-      status: 'pending',
-      createdAt: new Date(),
+      nodeCertificate: { fingerprint256: fingerprint },
+    } as unknown as Request & {
+      nodeCertificate: { fingerprint256: string };
     };
 
-    (nodesService.registerNode as ReturnType<typeof vi.fn>).mockResolvedValue(
-      expected,
-    );
+    const result = await controller.registerNode(request);
 
-    const request = {
-      nodeCertificate: undefined,
-    } as unknown as Request & { nodeCertificate?: { fingerprint: string } };
-
-    const result = await controller.registerNode(request, {
-      identity,
-    } as { identity: string });
-
-    expect(nodesService.registerNode).toHaveBeenCalledWith(identity);
+    expect(nodesService.registerNode).toHaveBeenCalledWith(fingerprint);
     expect(result).toEqual(expected);
   });
 
   it('should throw when no identity is available', async () => {
     const request = {
       nodeCertificate: undefined,
-    } as unknown as Request & { nodeCertificate?: { fingerprint: string } };
+    } as unknown as Request & {
+      nodeCertificate?: { fingerprint256: string };
+    };
 
-    await expect(controller.registerNode(request, {})).rejects.toThrow(
-      'No node identity available',
+    await expect(controller.registerNode(request)).rejects.toThrow(
+      UnauthorizedException,
     );
   });
 });

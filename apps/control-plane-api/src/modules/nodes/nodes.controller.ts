@@ -1,11 +1,13 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { MtlsGuard } from '../auth/mtls.guard.js';
 import { NodesService } from './nodes.service.js';
-
-interface RegisterNodeBody {
-  identity?: string;
-}
 
 @Controller('nodes')
 export class NodesController {
@@ -13,17 +15,14 @@ export class NodesController {
 
   @Post('register')
   @UseGuards(MtlsGuard)
-  async registerNode(
-    @Req() request: Request & { nodeCertificate?: unknown },
-    @Body() body: RegisterNodeBody,
-  ) {
+  async registerNode(@Req() request: Request & { nodeCertificate?: unknown }) {
     const cert = request.nodeCertificate as
-      { fingerprint: string; subject?: Record<string, unknown> } | undefined;
+      { fingerprint256: string } | undefined;
 
-    const fingerprint = cert?.fingerprint ?? body.identity;
+    const fingerprint = cert?.fingerprint256;
 
     if (!fingerprint) {
-      throw new Error('No node identity available');
+      throw new UnauthorizedException('No node identity available');
     }
 
     return this.nodesService.registerNode(fingerprint);

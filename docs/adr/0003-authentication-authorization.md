@@ -150,5 +150,6 @@ All other API endpoints require authentication. The GitHub webhook receiver (`PO
 - `AuthModule` in `apps/control-plane-api/src/modules/auth/` with `JwtStrategy` and GitHub OAuth callback.
 - `AuthGuard` applied globally except to `POST /webhook/github`.
 - mTLS guard on node-facing endpoints validating client certificate fingerprint against registered nodes.
+- TLS-layer client-certificate enforcement covers the entire HTTPS listener (`requestCert` + `rejectUnauthorized`), not only node-facing routes. Operator-facing endpoints introduced by the operator authentication work must run on a separate listener (or with enforcement relaxed) so they are not blocked by the node client-certificate requirement.
 - `.env.example` updated with `JWT_SECRET` placeholder.
 - Token expiration and rotation schedules deferred to a future ADR when operator and node onboarding are implemented.

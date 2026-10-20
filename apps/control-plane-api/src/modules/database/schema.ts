@@ -58,9 +58,7 @@ export const reviewRuns = pgTable(
     completedAt: timestamp('completed_at', { withTimezone: true }),
     nodeId: uuid('node_id').references(() => nodes.id),
   },
-  (table) => ({
-    nodeIdIdx: index('review_runs_node_id_idx').on(table.nodeId),
-  }),
+  (table) => [index('review_runs_node_id_idx').on(table.nodeId)],
 );
 
 export const findings = pgTable(
@@ -76,9 +74,7 @@ export const findings = pgTable(
     confidence: real('confidence').notNull(),
     message: text('message').notNull(),
   },
-  (table) => ({
-    reviewRunIdIdx: index('findings_review_run_id_idx').on(table.reviewRunId),
-  }),
+  (table) => [index('findings_review_run_id_idx').on(table.reviewRunId)],
 );
 
 export const nodesRelations = relations(nodes, ({ many }) => ({

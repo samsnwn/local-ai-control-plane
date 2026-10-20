@@ -76,6 +76,14 @@ Stop the local infrastructure:
 
 PostgreSQL data is stored in a Docker named volume and is preserved when using `docker compose down`.
 
+Reset the database completely (destroys the volume, re-initializes it, and applies all migrations):
+
+    pnpm db:reset
+
+Apply pending migrations to a running database:
+
+    pnpm db:migrate
+
 ### Environment Variables
 
 Local environment files must not be committed.
@@ -90,6 +98,12 @@ PostgreSQL configuration is controlled through the following variables:
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
 - `POSTGRES_PORT`
+- `DATABASE_URL` — connection string used by the API and drizzle-kit; keep it in
+  sync with the `POSTGRES_*` values above
+
+The API loads the repository-root `.env` file at startup; real environment
+variables take precedence over values from the file. The API and drizzle-kit
+fail to start when `DATABASE_URL` is not set.
 
 ## Linting
 
@@ -126,6 +140,10 @@ TypeScript formatting is handled by the existing Prettier configuration in the r
 Run the TypeScript test suites:
 
     pnpm exec turbo run test
+
+Run the API end-to-end tests (requires the local PostgreSQL container and applied migrations):
+
+    pnpm --filter control-plane-api run test:e2e
 
 Run Python tests:
 
