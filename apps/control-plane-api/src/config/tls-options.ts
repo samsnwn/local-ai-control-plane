@@ -42,7 +42,11 @@ function readOptionalTlsFile(
 ): Buffer | undefined {
   try {
     return readTlsFile(envVar, defaultPath, env);
-  } catch {
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    console.warn(
+      `Skipping optional TLS file for ${envVar} at "${defaultPath}": ${reason}`,
+    );
     return undefined;
   }
 }
