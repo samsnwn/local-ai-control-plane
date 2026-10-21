@@ -15,6 +15,11 @@ jobs:
     name: Run CI pipeline
     runs-on: ubuntu-latest
 
+    env:
+      # Connection string for the PostgreSQL service defined below. Provided
+      # as a real environment variable (CI has no `.env` file).
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/postgres
+
     services:
       postgres:
         image: postgres:18-alpine
@@ -82,13 +87,18 @@ jobs:
       - name: Run typecheck
         run: pnpm typecheck
 
-      # The sync suites create and drop their own database per run.
       - name: Run unit tests
         run: pnpm test
 
       - name: Run Python unit tests
         run: uv run pytest
         working-directory: packages/python
+
+      - name: Apply database migrations
+        run: pnpm db:migrate
+
+      - name: Run API end-to-end tests
+        run: pnpm --filter control-plane-api run test:e2e
 
       #   - name: Validate infrastructure configs
       #     run: pnpm test:infra

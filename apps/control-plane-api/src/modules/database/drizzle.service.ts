@@ -1,11 +1,8 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { loadEnvironment, requireEnv } from '../../config/env.js';
 import * as schema from './schema.js';
-
-export const DATABASE_URL =
-  process.env.DATABASE_URL ??
-  'postgresql://local_ai_control_plane:local_development_password@localhost:5432/local_ai_control_plane';
 
 @Injectable()
 export class DrizzleService implements OnModuleInit, OnModuleDestroy {
@@ -13,8 +10,14 @@ export class DrizzleService implements OnModuleInit, OnModuleDestroy {
   private db: ReturnType<typeof drizzle> | null = null;
 
   async onModuleInit() {
+    // Load the repository-root `.env` file (if present) before reading the
+    // connection string. Existing environment variables take precedence, so
+    // CI and production can inject DATABASE_URL directly without a `.env`.
+    loadEnvironment();
+    const databaseUrl = requireEnv('DATABASE_URL');
+
     this.pool = new Pool({
-      connectionString: DATABASE_URL,
+      connectionString: databaseUrl,
     });
     try {
       await this.pool.query('SELECT 1');
