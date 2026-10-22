@@ -18,14 +18,17 @@ jobs:
     env:
       # Connection string for the PostgreSQL service defined below. Provided
       # as a real environment variable (CI has no `.env` file).
-      DATABASE_URL: postgresql://ci:ci@localhost:5432/postgres
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # GitHub App credentials for the PR review agent e2e tests.
+      GITHUB_APP_PRIVATE_KEY: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+      GITHUB_WEBHOOK_SECRET: ${{ secrets.GITHUB_WEBHOOK_SECRET }}
 
     services:
       postgres:
         image: postgres:18-alpine
         env:
-          POSTGRES_USER: ci
-          POSTGRES_PASSWORD: ci
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
@@ -93,12 +96,6 @@ jobs:
       - name: Run Python unit tests
         run: uv run pytest
         working-directory: packages/pr-review-agent
-
-      - name: Apply database migrations
-        run: pnpm db:migrate
-
-      - name: Run API end-to-end tests
-        run: pnpm --filter control-plane-api run test:e2e
 
       - name: Apply database migrations
         run: pnpm db:migrate
