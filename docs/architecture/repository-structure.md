@@ -2,44 +2,64 @@
 
 ## Overview
 
-Local AI Control Plane will use a monorepo containing the different applications, infrastructure configuration, shared contracts, and project documentation.
+Local AI Control Plane uses a monorepo containing applications, shared contracts,
+reusable libraries, and project documentation.
 
-The monorepo simplifies development and integration while keeping the Control Plane and Customer Node as separate architectural domains.
+The monorepo simplifies development and integration while keeping clear
+boundaries between:
 
-Being in the same repository does not mean that all components form a single application or deployment unit.
+1. **Control Plane** applications
+2. **Reusable agent libraries** (portable to other projects)
+3. **Customer Node** applications (deferred until after M1)
+
+Being in the same repository does not mean that all components form a single
+application or deployment unit.
+
+---
+
+## Near-term product focus
+
+**M1** delivers a GitHub PR review capability:
+
+- Review logic lives in `packages/pr-review-agent` (reusable library).
+- Orchestration, webhooks, and persistence live in `apps/control-plane-api`.
+- Cross-language HTTP shapes live in `packages/contracts`.
+
+Fleet/node apps are documented as future targets only.
 
 ---
 
 ## Target Repository Structure
-
-The repository should evolve toward the following structure:
 
 ```text
 local-ai-control-plane/
 ├── apps/
 │   ├── control-plane-api/
 │   ├── control-plane-web/
-│   ├── node-agent/
-│   └── node-api/
+│   ├── review-agent/          # optional thin runner for this monorepo
+│   ├── node-agent/            # deferred (fleet)
+│   └── node-api/              # deferred (fleet)
 │
 ├── packages/
-│
-├── infrastructure/
+│   ├── contracts/             # OpenAPI / shared schemas
+│   ├── eslint-config/
+│   └── pr-review-agent/       # reusable GitHub PR review library
 │
 ├── docs/
 │   ├── architecture/
-│   └── adr/
-│
-├── scripts/
+│   ├── adr/
+│   └── milestones/
 │
 ├── .github/
 │
 └── README.md
 ```
 
-This structure is a target architecture.
+Directories should only be created when they are required. Empty applications or
+placeholder packages should not be introduced unnecessarily.
 
-Directories should only be created when they are required. Empty applications or placeholder packages should not be introduced unnecessarily.
+`infrastructure/` and `scripts/` may be added when there is real content to put
+in them. Today, local Postgres is configured via root `docker-compose.yml`.
 
 ---
 
@@ -47,199 +67,95 @@ Directories should only be created when they are required. Empty applications or
 
 ### Control Plane API
 
-The Control Plane API owns centralized management functionality.
+Owns centralized management and M1 orchestration:
 
-Responsibilities include:
+- Webhook ingress (GitHub)
+- Review run / findings persistence
+- Node registration (early fleet building block)
+- Operational metadata
 
-- Node registration.
-- Node identity.
-- Operational metadata.
-- Node health state.
-- Management operations.
-- Control Plane persistence.
-
-It must not contain Customer Node implementation logic.
-
----
+Must not contain the reusable review algorithm (that belongs in
+`packages/pr-review-agent`).
 
 ### Control Plane Web
 
-The Control Plane Web application provides the operator-facing interface.
+Operator-facing UI. Talks only to the Control Plane API.
 
-It communicates with the Control Plane API.
+### review-agent (optional)
 
-It must not communicate directly with internal Customer Node services.
+Thin deployable runner for this monorepo that imports `pr-review-agent`. Create
+only when a separate process is needed; until then the library can be invoked
+from tests or a future worker inside the Control Plane host.
 
----
+### Node Agent / Node API (deferred)
 
-### Node Agent
-
-The Node Agent is responsible for the operational lifecycle of a Customer Node.
-
-Its responsibilities may include:
-
-- Node registration.
-- Heartbeats.
-- Health reporting.
-- Software and model version reporting.
-- Receiving management commands.
-- Applying local configuration changes.
-
-The Node Agent should remain independent from the AI application layer.
-
----
-
-### Node API
-
-The Node API owns local AI functionality.
-
-Its future responsibilities may include:
-
-- Local model inference.
-- Document processing.
-- Embeddings.
-- Retrieval-augmented generation.
-- Local AI endpoints.
-
-It must not contain fleet-management responsibilities.
+Fleet lifecycle and local AI runtime. Not part of M1.
 
 ---
 
 ## Shared Packages
 
-The `packages/` directory is reserved for code or contracts that have multiple real consumers.
+### `packages/pr-review-agent`
 
-Potential examples include:
+Installable Python library. Other repositories may depend on it.
 
-- API schemas.
-- Shared protocol contracts.
-- Generated clients.
-- Common validation schemas.
+**Must not** import Control Plane app code, Drizzle, NestJS, or this monorepo's
+secrets handling.
 
-Shared packages should not be introduced simply to avoid duplication.
+### `packages/contracts`
 
-They must also not become a mechanism for coupling Control Plane and Customer Node implementation details.
+OpenAPI source of truth for HTTP APIs shared across language boundaries.
 
-A shared package should generally exist only when at least two components genuinely depend on the same contract or behavior.
+### `packages/eslint-config`
 
----
+Shared ESLint configuration for TypeScript apps.
 
-## Infrastructure
-
-The `infrastructure/` directory owns configuration related to running or deploying the system.
-
-Potential responsibilities include:
-
-- Docker configuration.
-- Docker Compose.
-- Local development infrastructure.
-- Networking configuration.
-- Deployment configuration.
-- Infrastructure-specific scripts.
-
-Application business logic must not depend on infrastructure implementation details.
-
----
-
-## Documentation
-
-Project documentation lives under `docs/`.
-
-Expected structure:
-
-```text
-docs/
-├── project-scope.md
-├── architecture/
-│   ├── system-overview.md
-│   └── repository-structure.md
-└── adr/
-```
-
-Architecture Decision Records will be introduced separately.
-
----
-
-## Scripts
-
-The `scripts/` directory is reserved for repository-level automation.
-
-Examples may include:
-
-- Development setup.
-- Repository validation.
-- Local environment helpers.
-- Deployment utilities.
-
-Scripts should only be added when they automate repeatable project-level tasks.
+Shared packages should exist only when at least two components (or an external
+consumer) genuinely need them.
 
 ---
 
 ## Dependency Rules
 
-The repository follows these initial dependency rules:
-
 1. Customer Node applications must not depend on Control Plane implementation code.
-
 2. Control Plane applications must not depend on Customer Node implementation code.
-
 3. Cross-system communication must happen through explicit interfaces or contracts.
-
-4. Shared packages must not bypass architectural boundaries.
-
-5. Application business logic must not depend directly on infrastructure configuration.
-
-6. Documentation must not become a runtime dependency.
-
-7. Shared code should only be introduced when there is a real need for reuse.
+4. `packages/pr-review-agent` must not depend on any `apps/*` package.
+5. Apps may depend on `packages/contracts` and `packages/pr-review-agent`.
+6. Shared packages must not bypass architectural boundaries.
+7. Application business logic must not depend directly on infrastructure configuration.
+8. Documentation must not become a runtime dependency.
 
 ---
 
 ## Technology Boundaries
 
-The repository must support multiple technology ecosystems.
-
-The Control Plane and Customer Node have different requirements and should be free to use technologies appropriate to their domains.
-
-Conceptually:
-
 ```text
 Control Plane
-    └── Web/backend ecosystem
+    └── TypeScript / NestJS / React
 
-Customer Node
-    └── AI/ML ecosystem
+Reusable agents
+    └── Python (uv) libraries such as pr-review-agent
+
+Customer Node (deferred)
+    └── Python AI/ML stack
 
 Infrastructure
-    └── Containers, networking and automation
+    └── Containers, networking, automation
 ```
-
-The exact languages, frameworks, package managers, and runtimes are intentionally not defined here.
-
-Those decisions will be made separately and documented through Architecture Decision Records.
 
 ---
 
 ## Monorepo Rationale
 
-A monorepo is used for the MVP because it simplifies:
+A monorepo is used because it simplifies local development, CI, documentation,
+and cross-component changes while M1 is built.
 
-- Repository management.
-- Local development.
-- Documentation.
-- CI.
-- Cross-component changes.
-- Integration testing.
-- Version control.
-
-The system should still preserve independent application and deployment boundaries.
-
-If the project grows significantly, individual components may later be separated without changing the conceptual architecture.
+`packages/pr-review-agent` is structured so it can be published or vendored into
+other projects without dragging Control Plane deployment units along.
 
 ---
 
 ## Core Principle
-
-The repository structure should reflect the system architecture:
 
 > Components may share a repository, but they must not lose their architectural boundaries.

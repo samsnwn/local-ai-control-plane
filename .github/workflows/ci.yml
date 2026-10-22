@@ -63,14 +63,14 @@ jobs:
 
       - name: Setup Python
         run: uv python install
-        working-directory: packages/python
+        working-directory: packages/pr-review-agent
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Install Python dependencies
         run: uv sync --frozen
-        working-directory: packages/python
+        working-directory: packages/pr-review-agent
 
       - name: Run linter
         run: pnpm lint
@@ -79,7 +79,7 @@ jobs:
         run: |
           uv run ruff check .
           uv run ruff format --check .
-        working-directory: packages/python
+        working-directory: packages/pr-review-agent
 
       - name: Check formatting
         run: pnpm format:check
@@ -92,7 +92,13 @@ jobs:
 
       - name: Run Python unit tests
         run: uv run pytest
-        working-directory: packages/python
+        working-directory: packages/pr-review-agent
+
+      - name: Apply database migrations
+        run: pnpm db:migrate
+
+      - name: Run API end-to-end tests
+        run: pnpm --filter control-plane-api run test:e2e
 
       - name: Apply database migrations
         run: pnpm db:migrate
