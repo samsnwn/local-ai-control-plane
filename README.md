@@ -2,6 +2,12 @@
 
 Monorepo for the Local AI Control Plane project.
 
+**Near-term product (M1):** a self-hosted GitHub PR review agent, orchestrated by
+the Control Plane API, with a reusable Python library in `packages/pr-review-agent`.
+
+**Longer-term direction:** a private AI fleet manager (customer nodes + control
+plane). Fleet features are deferred until after M1.
+
 ## Prerequisites
 
 - Node.js 24+
@@ -17,9 +23,9 @@ Clone the repository and install the dependencies:
 
     pnpm install
 
-Set up the Python environment:
+Set up the reusable PR review agent (Python):
 
-    cd packages/python
+    cd packages/pr-review-agent
     uv sync
     cd ../..
 
@@ -31,17 +37,20 @@ Configure the local environment:
 
     local-ai-control-plane/
     ├── apps/
-    │   ├── api/
-    │   └── web/
+    │   ├── control-plane-api/     # NestJS Control Plane API
+    │   └── control-plane-web/     # React/Vite operator UI (scaffold)
     ├── packages/
+    │   ├── contracts/             # OpenAPI contracts (spec-driven)
     │   ├── eslint-config/
-    │   └── python/
-    ├── infrastructure/
+    │   └── pr-review-agent/       # Reusable GitHub PR review library
     ├── docs/
     ├── .github/
     ├── .env.example
     ├── docker-compose.yml
     └── README.md
+
+Optional later (create only when needed): `apps/review-agent` (thin runner),
+`apps/node-agent`, `apps/node-api`, `infrastructure/` deploy configs.
 
 ## Development
 
@@ -120,7 +129,7 @@ Run linting for a specific application:
 
 Python uses Ruff:
 
-    cd packages/python
+    cd packages/pr-review-agent
     uv run ruff check .
     uv run ruff format --check .
     cd ../..
@@ -129,11 +138,11 @@ Python uses Ruff:
 
 Format Python code with Ruff:
 
-    cd packages/python
+    cd packages/pr-review-agent
     uv run ruff format .
     cd ../..
 
-TypeScript formatting is handled by the existing Prettier configuration in the respective applications.
+TypeScript formatting is handled by Prettier at the repository root.
 
 ## Testing
 
@@ -147,7 +156,7 @@ Run the API end-to-end tests (requires the local PostgreSQL container and applie
 
 Run Python tests:
 
-    cd packages/python
+    cd packages/pr-review-agent
     uv run pytest
     cd ../..
 
@@ -159,11 +168,11 @@ Build all applications:
 
 ## Python Environment
 
-The Python workspace uses `uv` for dependency management and Python 3.14.
+The reusable PR review agent uses `uv` for dependency management and Python 3.14.
 
-The lockfile is committed to the repository to ensure reproducible environments.
+The lockfile (`packages/pr-review-agent/uv.lock`) is committed to the repository.
 
-    cd packages/python
+    cd packages/pr-review-agent
 
     uv sync
     uv run pytest
@@ -190,7 +199,7 @@ Run the repository lint and build checks:
 
 Run the Python checks:
 
-    cd packages/python
+    cd packages/pr-review-agent
     uv run ruff check .
     uv run ruff format --check .
     uv run pytest
@@ -200,17 +209,25 @@ All commands should complete successfully before submitting changes.
 
 ## Scope
 
-This repository currently contains the monorepo foundation, development tooling, and local development infrastructure.
+### In place today
 
-The following are intentionally out of scope at this stage:
+- Monorepo tooling (pnpm, Turborepo, CI)
+- Local PostgreSQL via Docker Compose
+- Control Plane API with Drizzle schema/migrations
+- mTLS-backed `POST /nodes/register` (early fleet building block)
+- OpenAPI contracts package (M1 endpoints specified)
+- Reusable `pr-review-agent` package scaffold (models + tests)
 
-- Local LLM integration
-- RAG
-- Node registration
-- Control Plane functionality
-- Database schemas
-- Dockerized application deployment
-- Production databases
-- VPN or remote networking
-- Monitoring infrastructure
-- Production infrastructure
+### Near-term (M1) — in progress
+
+- GitHub webhook ingestion and HMAC verification
+- Review run / findings APIs aligned to `packages/contracts`
+- PR review pipeline inside `packages/pr-review-agent`
+- Publishing findings back to GitHub
+
+### Deferred
+
+- Customer node fleet management (heartbeats, remote execution)
+- Operator UI beyond the Vite scaffold
+- Production deployment, VPN, monitoring
+- Local LLM / RAG on customer nodes

@@ -3,239 +3,180 @@
 ## Overview
 
 Local AI Control Plane is a platform for deploying, operating, and managing
-private AI workloads running on customer-controlled infrastructure.
+private AI workloads and agents.
 
-Instead of sending customer data to a centralized AI service, each customer
-runs an independent AI node on infrastructure they control, such as an
-on-premise server, workstation, or other compatible machine.
+The long-term vision is a **private AI fleet manager**: customer-owned nodes run
+LLMs/RAG/data locally; a central control plane manages registration, health,
+versions, and ops metadata without holding customer AI data.
 
-A central control plane provides operational visibility and remote management
-of these nodes without storing the customer's business data.
+The **near-term product (M1)** is narrower and ships first:
+
+> A self-hosted GitHub pull-request review agent, orchestrated by the Control
+> Plane, with review logic packaged so other projects can reuse it.
 
 ---
 
 ## Problem
 
-Organizations increasingly want to use generative AI with internal documents
-and business data.
+Organizations want generative AI on internal data and workflows without giving
+up privacy, sovereignty, or operational control.
 
-Using cloud AI providers can introduce concerns around:
+Cloud AI providers introduce concerns around data privacy, vendor dependency,
+and connectivity. Running AI locally helps, but operating many installations
+(or many agents) becomes complex.
 
-- Data privacy
-- Data sovereignty
-- Regulatory requirements
-- Vendor dependency
-- Internet connectivity
-- Control over models and infrastructure
-
-Running AI locally addresses some of these concerns, but introduces another
-problem: deploying and maintaining independent AI installations across
-multiple locations becomes operationally complex.
-
-This project explores how those installations can be managed from a central
-platform while keeping customer workloads and data isolated.
+This project explores a central management plane for those workloads while
+keeping sensitive data and reusable agent capabilities cleanly separated.
 
 ---
 
-## Project Goal
+## Near-term goal (M1)
 
-The goal of the MVP is to demonstrate that a central management platform can
-manage multiple independently running local AI nodes.
+Demonstrate a complete GitHub PR review vertical slice:
 
-The system consists of two primary concepts:
+1. GitHub webhook (or manual trigger) starts a review.
+2. `packages/pr-review-agent` analyzes the PR and produces structured findings.
+3. The Control Plane persists review runs and findings.
+4. Findings can be published back to the pull request.
 
-1. **Customer Node**
-2. **Control Plane**
-
-The customer node runs AI workloads and stores customer data.
-
-The control plane manages infrastructure metadata, configuration, health and
-lifecycle operations across customer nodes.
+M1 success does **not** require a fleet of customer nodes or a local LLM on
+each node.
 
 ---
 
-## Customer Node
+## Longer-term goal (post-M1)
 
-A customer node represents an independent AI installation running on
-customer-controlled infrastructure.
+Demonstrate that a central management platform can manage multiple independently
+running local AI nodes:
 
-A node should eventually be capable of:
+1. **Customer Node** — runs AI workloads and stores customer data.
+2. **Control Plane** — manages infrastructure metadata, configuration, health,
+   and lifecycle operations across nodes.
 
-- Running a local LLM.
-- Exposing local AI functionality through an API.
-- Processing customer documents locally.
-- Providing retrieval-augmented generation (RAG).
-- Persisting customer-specific data locally.
-- Reporting operational health to the control plane.
-- Reporting software and model versions.
-- Receiving authorized management operations from the control plane.
+See `docs/architecture/system-overview.md` for the fleet architecture.
 
-A node must continue to maintain a clear security and data boundary from
-other customer nodes.
+---
+
+## Customer Node (deferred)
+
+A customer node represents an independent AI installation on customer-controlled
+infrastructure. Eventually it should:
+
+- Run a local LLM and expose local AI APIs.
+- Process documents locally (including RAG).
+- Persist customer-specific data locally.
+- Report health and versions to the Control Plane.
+- Receive authorized management operations.
+
+Each node remains an independent security and data boundary.
 
 ---
 
 ## Control Plane
 
-The control plane provides centralized management of customer nodes.
+Near-term responsibilities (M1):
 
-It should eventually be capable of:
+- GitHub integration and webhook verification.
+- Review run / findings persistence.
+- Invoking or hosting the PR review agent workflow.
+- Shared OpenAPI contracts for agent-facing APIs.
 
-- Registering nodes.
-- Identifying nodes securely.
-- Tracking node availability.
-- Receiving node health information.
-- Tracking software versions.
-- Tracking installed models.
-- Managing multiple customer nodes.
-- Sending authorized management operations to nodes.
+Longer-term responsibilities (fleet):
+
+- Registering and identifying nodes securely.
+- Tracking availability, health, software versions, and models.
+- Sending authorized management operations.
 - Providing a web interface for infrastructure management.
 
-The control plane is responsible for managing the infrastructure, not the
-customer's AI data.
+The control plane manages infrastructure and operational metadata, not the
+customer's AI business data.
+
+---
+
+## Reusable agent library
+
+`packages/pr-review-agent` is a first-class deliverable, not an internal detail.
+
+It must remain installable and free of Control Plane implementation dependencies
+so other repositories can reuse the review capability.
 
 ---
 
 ## Data Ownership and Isolation
 
-Data isolation is a core architectural principle of the project.
+Customer-specific AI data should remain inside the corresponding customer node
+(when fleet features exist). That includes documents, embeddings, prompts,
+conversations, and business data.
 
-Customer-specific AI data should remain inside the corresponding customer
-node.
+The control plane may store operational metadata, including node identifiers,
+status, versions, heartbeats, deployment configuration, and (for M1) review
+runs and findings derived from GitHub PRs the operator has authorized.
 
-This includes:
-
-- Documents
-- Document contents
-- Embeddings
-- Vector data
-- Prompts
-- AI conversations
-- Retrieved context
-- Business data
-
-The control plane may store operational metadata required to manage nodes,
-including:
-
-- Node identifiers
-- Node status
-- Software versions
-- Installed model metadata
-- Hardware information
-- Resource utilization
-- Last heartbeat
-- Deployment configuration
-
-Customer A's data must never be accessible from Customer B's node.
-
-Compromise or failure of one customer node should not automatically provide
-access to another customer environment.
+Compromise of one customer node must not automatically grant access to another.
 
 ---
 
-## MVP Success Criteria
-
-The MVP is considered successful when the project can demonstrate multiple
-independent AI nodes being managed from a central control plane.
-
-A successful demonstration should include:
-
-1. Multiple independently running customer nodes.
-2. A local LLM running on each node.
-3. Customer data remaining local to each node.
-4. Nodes registering with the control plane.
-5. Nodes periodically reporting their health.
-6. The control plane displaying node status.
-7. The control plane tracking node and model versions.
-8. Basic authenticated management operations.
-9. Isolation between customer environments.
-
-The MVP does not need to represent a production-ready commercial platform.
-
-Its purpose is to validate the architecture and demonstrate the complete
-management flow.
-
----
-
-## Non-Goals
-
-The following capabilities are explicitly outside the initial MVP scope:
+## Non-Goals (current phase)
 
 - Billing and subscriptions
-- Payment processing
 - Kubernetes orchestration
 - Mobile applications
-- CRM integrations
-- Email integrations
-- Enterprise SSO
+- Enterprise SSO (beyond planned GitHub OAuth for operators)
 - Hardware manufacturing
-- Complex autonomous AI agents
-- Cloud-hosted LLM inference
-- Multi-region infrastructure
-- High availability
-- Automatic horizontal scaling
+- Cloud-hosted LLM inference as the primary product
+- Multi-region HA / automatic horizontal scaling
 - Full enterprise compliance certification
-
-These capabilities may be considered in future iterations if the project
-evolves beyond the initial MVP.
+- Shipping fleet node apps before M1 is demonstrable
 
 ---
 
 ## Engineering Principles
 
-Development should follow several principles.
+### Spec-driven
 
-### Local-first
+Cross-boundary HTTP APIs are defined in `packages/contracts` (OpenAPI) and
+implemented against that contract.
 
-Customer AI workloads and customer business data should remain on
-customer-controlled infrastructure whenever possible.
+### Local-first (fleet)
+
+Customer AI workloads and business data remain on customer-controlled
+infrastructure whenever possible.
 
 ### Isolation
 
-Each customer node represents an independent security and data boundary.
+Each customer node is an independent security and data boundary. The reusable
+agent library is isolated from Control Plane deployment code.
 
 ### Reproducibility
 
-A new customer node should eventually be deployable using a predictable,
-automated process rather than manual configuration.
+Dependencies are locked (`pnpm-lock.yaml`, `uv.lock`). Environments are
+reproducible via Docker Compose for Postgres.
 
 ### Observability
 
-The system should expose enough operational information to understand whether
-a node is healthy and functioning correctly.
+The system should expose enough operational information to know whether a review
+run (and later a node) is healthy.
 
 ### Security by design
 
-Authentication, authorization and network boundaries should be considered
-part of the architecture rather than added after the system is completed.
+Authentication, authorization, and network boundaries are part of the
+architecture. M1 requires webhook HMAC verification and authenticated agent
+callbacks; fleet mTLS remains for node surfaces (ADR-0002 / ADR-0003).
 
 ### Incremental development
 
-The system should be built through small, independently testable milestones.
-
-Infrastructure complexity should only be introduced when justified by an
-actual requirement.
+Build small, testable milestones. Introduce infrastructure complexity only when
+justified by an actual requirement.
 
 ---
 
 ## Future Direction
 
-Beyond the MVP, the architecture could evolve into a platform capable of
-managing fleets of private AI installations.
+Beyond M1 and the initial fleet MVP, the architecture could evolve toward:
 
-Potential future capabilities include:
-
-- Automated node provisioning
-- Remote software updates
+- Automated node provisioning and remote updates
 - Model deployment and version management
-- Backup management
-- Centralized observability
-- Policy management
-- Hardware profiles
-- Customer administration
-- Role-based access control
-- Audit logging
-- Additional local AI applications and integrations
+- Policy management, RBAC, and audit logging
+- Additional reusable local AI applications and agents
 
-These possibilities should influence architectural decisions where
-appropriate, but should not increase the scope of the initial MVP.
+These possibilities may influence architecture, but must not inflate M1 scope.
