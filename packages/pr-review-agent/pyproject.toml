@@ -1,12 +1,14 @@
 [project]
-name = "local-ai-control-plane-python"
+name = "pr-review-agent"
 version = "0.1.0"
-description = "Python workspace for the Local AI Control Plane"
+description = "Reusable GitHub pull-request review agent (library). No Control Plane dependencies."
+readme = "README.md"
 requires-python = ">=3.14"
 dependencies = []
 
-[tool.uv]
-package = false
+[build-system]
+requires = ["uv_build>=0.12.6,<0.13.0"]
+build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
@@ -27,3 +29,4 @@ indent-style = "space"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
