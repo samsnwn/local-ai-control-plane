@@ -20,8 +20,8 @@ jobs:
       # as a real environment variable (CI has no `.env` file).
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       # GitHub App credentials for the PR review agent e2e tests.
-      GITHUB_APP_PRIVATE_KEY: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
-      GITHUB_WEBHOOK_SECRET: ${{ secrets.GITHUB_WEBHOOK_SECRET }}
+      GITHUB_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
+      GITHUB_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
 
     services:
       postgres:
