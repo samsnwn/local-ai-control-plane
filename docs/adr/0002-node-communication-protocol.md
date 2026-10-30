@@ -6,7 +6,9 @@ Accepted
 
 ## Context
 
-The system architecture (`docs/architecture/system-overview.md`) intentionally defers the Control Plane ↔ Customer Node communication protocol. M1 requires the Control Plane to receive GitHub webhook events and eventually dispatch review work to nodes. Before any node-facing code is written, we must define how nodes and the Control Plane communicate across a network trust boundary.
+The system architecture (`docs/architecture/system-overview.md`) intentionally defers the Control Plane ↔ Customer Node communication protocol. M1 focuses on the Control Plane management API and node registration.
+Before any node-facing code is written, we must define how nodes and the Control
+Plane communicate across a network trust boundary.
 
 Key constraints from the architecture:
 

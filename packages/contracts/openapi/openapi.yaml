@@ -3,220 +3,94 @@ info:
   title: Local AI Control Plane API
   version: 0.1.0
   description: |
-    Shared contract for Control Plane HTTP APIs used by M1 (GitHub PR review).
-    Fleet/node management endpoints will be added when those consumers exist.
+    Shared contract for Control Plane HTTP APIs.
+    Fleet/node management endpoints will be added as those features ship.
 servers:
   - url: https://localhost:3000
     description: Local HTTPS Control Plane API
 tags:
-  - name: webhooks
-    description: Public ingress validated by provider signatures
-  - name: review-runs
-    description: Review run persistence for the PR review agent
+  - name: nodes
+    description: Node registration and management
 paths:
-  /webhooks/github:
+  /nodes/register:
     post:
-      tags: [webhooks]
-      operationId: githubWebhook
-      summary: Receive GitHub webhook events
+      tags: [nodes]
+      operationId: registerNode
+      summary: Register a new node
       description: |
-        Public endpoint. Must validate `x-hub-signature-256` against
-        `GITHUB_WEBHOOK_SECRET`. Not behind node mTLS.
-      parameters:
-        - name: x-hub-signature-256
-          in: header
-          required: true
-          schema:
-            type: string
-        - name: x-github-event
-          in: header
-          required: true
-          schema:
-            type: string
+        mTLS-authenticated endpoint. Registers a customer node with the Control Plane.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties: true
-      responses:
-        "202":
-          description: Event accepted for processing
-        "401":
-          description: Invalid signature
-  /review-runs:
-    post:
-      tags: [review-runs]
-      operationId: createReviewRun
-      summary: Create a review run
-      description: Authenticated agent/internal credential required.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateReviewRunRequest"
+              $ref: "#/components/schemas/RegisterNodeRequest"
       responses:
         "201":
-          description: Review run created
+          description: Node registered
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReviewRun"
+                $ref: "#/components/schemas/Node"
         "401":
-          description: Unauthorized
-  /review-runs/{id}:
+          description: Unauthorized (mTLS required)
+        "409":
+          description: Node already registered
+  /nodes:
     get:
-      tags: [review-runs]
-      operationId: getReviewRun
-      summary: Get a review run by id
+      tags: [nodes]
+      operationId: listNodes
+      summary: List registered nodes
       security:
         - bearerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/ReviewRunId"
       responses:
         "200":
-          description: Review run
+          description: List of nodes
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReviewRun"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Node"
         "401":
           description: Unauthorized
-        "404":
-          description: Not found
-  /review-runs/{id}/findings:
-    post:
-      tags: [review-runs]
-      operationId: createReviewFindings
-      summary: Attach findings to a review run
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/ReviewRunId"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateFindingsRequest"
-      responses:
-        "201":
-          description: Findings stored
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FindingsResponse"
-        "401":
-          description: Unauthorized
-        "404":
-          description: Review run not found
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-      description: Internal agent/service token (M1). Node mTLS is a separate surface.
-  parameters:
-    ReviewRunId:
-      name: id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
+      description: Operator JWT token.
   schemas:
-    ReviewRunStatus:
+    NodeStatus:
       type: string
-      enum: [running, completed, failed]
-    FindingSeverity:
-      type: string
-      enum: [info, low, medium, high, critical]
-    CreateReviewRunRequest:
+      enum: [active, inactive, unknown]
+    RegisterNodeRequest:
       type: object
-      required: [repo, prNumber]
+      required: [hostname]
       properties:
-        repo:
+        hostname:
           type: string
-          description: owner/name
-        prNumber:
-          type: integer
-          minimum: 1
-        nodeId:
-          type: string
-          format: uuid
+          description: Human-readable hostname of the node
+        metadata:
+          type: object
+          additionalProperties: true
           nullable: true
-          description: Optional; null when the agent runs locally (M1).
-    ReviewRun:
+          description: Optional node metadata (OS, hardware, etc.)
+    Node:
       type: object
-      required: [id, repo, prNumber, status, createdAt]
+      required: [id, hostname, status, registeredAt]
       properties:
         id:
           type: string
           format: uuid
-        repo:
+        hostname:
           type: string
-        prNumber:
-          type: integer
         status:
-          $ref: "#/components/schemas/ReviewRunStatus"
-        nodeId:
-          type: string
-          format: uuid
-          nullable: true
-        createdAt:
+          $ref: "#/components/schemas/NodeStatus"
+        registeredAt:
           type: string
           format: date-time
-        completedAt:
+        lastSeenAt:
           type: string
           format: date-time
           nullable: true
-    Finding:
-      type: object
-      required: [file, severity, confidence, message]
-      properties:
-        file:
-          type: string
-        line:
-          type: integer
-          nullable: true
-        severity:
-          $ref: "#/components/schemas/FindingSeverity"
-        confidence:
-          type: number
-          minimum: 0
-          maximum: 1
-        message:
-          type: string
-    CreateFindingsRequest:
-      type: object
-      required: [findings]
-      properties:
-        findings:
-          type: array
-          items:
-            $ref: "#/components/schemas/Finding"
-        status:
-          $ref: "#/components/schemas/ReviewRunStatus"
-          description: Optional terminal status to set on the review run.
-    FindingsResponse:
-      type: object
-      required: [reviewRunId, findings]
-      properties:
-        reviewRunId:
-          type: string
-          format: uuid
-        findings:
-          type: array
-          items:
-            allOf:
-              - $ref: "#/components/schemas/Finding"
-              - type: object
-                required: [id]
-                properties:
-                  id:
-                    type: string
-                    format: uuid

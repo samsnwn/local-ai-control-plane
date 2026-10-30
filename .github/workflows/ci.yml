@@ -10,12 +10,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
-env:
-  # GitHub App credentials for the PR review agent (M1). Not consumed by
-  # current tests; available once agent e2e coverage lands.
-  GITHUB_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
-  GITHUB_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
-
 jobs:
   # TypeScript static checks gate the job (fail fast). Tests use `if: always()`
   # so they still run and report when a static check fails.
@@ -59,7 +53,7 @@ jobs:
         with:
           path: .turbo
           # Include lockfile hashes so dependency changes invalidate the cache.
-          key: ${{ runner.os }}-turbo-${{ hashFiles('pnpm-lock.yaml', 'packages/pr-review-agent/uv.lock') }}
+          key: ${{ runner.os }}-turbo-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-turbo-
 
@@ -91,47 +85,6 @@ jobs:
         env:
           DATABASE_URL: postgresql://ci:ci@localhost:5432/postgres
 
-  python:
-    name: Python checks
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: false
-
-      - name: Cache uv
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-${{ hashFiles('packages/pr-review-agent/uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
-
-      - name: Setup Python
-        run: uv python install
-        working-directory: packages/pr-review-agent
-
-      - name: Install Python dependencies
-        run: uv sync --frozen
-        working-directory: packages/pr-review-agent
-
-      - name: Run Python linter
-        run: uv run ruff check .
-        working-directory: packages/pr-review-agent
-
-      - name: Check Python formatting
-        run: uv run ruff format --check .
-        working-directory: packages/pr-review-agent
-
-      - name: Run Python unit tests
-        run: uv run pytest
-        working-directory: packages/pr-review-agent
-
   infrastructure:
     name: Infrastructure validation
     runs-on: ubuntu-latest
@@ -146,7 +99,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [typescript, python, infrastructure]
+    needs: [typescript, infrastructure]
 
     steps:
       - name: Checkout code
@@ -167,7 +120,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: .turbo
-          key: ${{ runner.os }}-turbo-${{ hashFiles('pnpm-lock.yaml', 'packages/pr-review-agent/uv.lock') }}
+          key: ${{ runner.os }}-turbo-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-turbo-
 

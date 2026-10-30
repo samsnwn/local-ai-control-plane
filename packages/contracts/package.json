@@ -2,7 +2,7 @@
   "name": "@repo/contracts",
   "version": "0.0.0",
   "private": true,
-  "description": "Shared OpenAPI contracts between Control Plane and external consumers (e.g. pr-review-agent hosts).",
+  "description": "Shared OpenAPI contracts for the Control Plane API.",
   "files": [
     "openapi"
   ],

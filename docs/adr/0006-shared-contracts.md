@@ -6,11 +6,9 @@ Proposed
 
 ## Context
 
-ADR-0001 establishes separate language ecosystems: TypeScript (Control Plane API + Web) and Python (Customer Node API + Node Agent). `packages/eslint-config` is the only shared package today, and it contains no API contracts.
+ADR-0001 establishes TypeScript (Control Plane API + Web) as the primary ecosystem. `packages/eslint-config` is the only shared package today, and it contains no API contracts.
 
-M1 requires the Python agent to call back to the NestJS API to persist review results (Step 9: `POST /review-runs` and `POST /review-runs/:id/findings`). The Control Plane and Python agent must agree on request/response shapes without one importing the other's implementation code.
-
-The repository structure doc (`docs/architecture/repository-structure.md`) states shared packages should exist only when at least two components genuinely depend on the same contract, and must not bypass architectural boundaries (Control Plane must not depend on Customer Node implementation code, and vice versa).
+M1 delivers the Control Plane management API. The contracts package is the source of truth for Control Plane API shapes.
 
 ## Considered Options
 
@@ -73,10 +71,9 @@ Use **OpenAPI 3.0 / JSON Schema** as the shared contract format, stored in `pack
 
 Rationale:
 
-- Language-agnostic, serving both TypeScript and Python without either importing the other's implementation code.
+- Language-agnostic, enabling any future consumer without coupling to implementation code.
 - Single source of truth for request/response shapes.
 - NestJS (`@nestjs/swagger`) can generate or validate OpenAPI from controllers.
-- Python can generate Pydantic models from the OpenAPI spec (via `pydantic-openapi` or manual mapping).
 - Human-reviewable YAML files in PRs.
 
 ## Location
@@ -92,11 +89,10 @@ packages/contracts/
 
 ## What goes in `packages/contracts/`
 
-- OpenAPI spec for Control Plane API endpoints consumed by the Python agent:
-  - `POST /review-runs`
-  - `POST /review-runs/:id/findings`
-  - `GET /nodes` (for node registration/status)
-- JSON schemas for request bodies and response bodies shared between TS and Python.
+- OpenAPI spec for Control Plane API endpoints:
+  - `POST /nodes/register`
+  - `GET /nodes`
+- JSON schemas for request bodies and response bodies.
 
 ## What does NOT go in `packages/contracts/`
 
@@ -107,7 +103,6 @@ packages/contracts/
 ## Code generation
 
 - TypeScript: `openapi-typescript` generates TS types from `openapi.yaml`.
-- Python: Pydantic models generated or hand-written to match the OpenAPI schemas.
 - Generation step runs in CI or as part of `turbo build` when contracts change.
 - Generated files are NOT committed; they are generated at build time.
 
@@ -137,5 +132,4 @@ packages/contracts/
 
 - `packages/contracts/package.json` should be a plain JSON schema package (no runtime code).
 - Install `@nestjs/swagger` in `apps/control-plane-api` to generate/validate OpenAPI from controllers.
-- Install `pydantic` in `packages/python` for model validation matching the OpenAPI schemas.
 - The OpenAPI spec should be versioned (e.g., `openapi.yaml` with `info.version`).

@@ -7,11 +7,9 @@ Local AI Control Plane is a distributed system composed of:
 - A central **Control Plane**.
 - Multiple isolated **Customer Nodes** running on customer-controlled infrastructure
   (**fleet target; deferred until after M1**).
-- Reusable **agent libraries** (starting with `packages/pr-review-agent`) that the
-  Control Plane can orchestrate without owning the agent implementation.
 
-The Control Plane manages operational metadata, review orchestration (M1), and
-eventually node lifecycle information.
+The Control Plane manages operational metadata, review orchestration (M1),
+and eventually node lifecycle information.
 
 Customer Nodes (when introduced) run local AI workloads and keep customer-specific
 data inside the customer environment.
@@ -22,12 +20,11 @@ The core architectural principle is:
 
 ### Near-term delivery (M1)
 
-Before the full fleet is built, the Control Plane orchestrates a GitHub PR review
+Before the full fleet is built, the Control Plane delivers the management API
 vertical slice:
 
 - Public webhook ingress (HMAC-verified)
-- Review run / findings persistence
-- Calls into `packages/pr-review-agent` (reusable; no Control Plane imports)
+- Node registration / operational metadata persistence
 
 See `docs/milestones/M1-github-pr-agent.md` and `docs/project-scope.md`.
 
@@ -129,7 +126,7 @@ Its responsibilities include:
 - Managing node metadata.
 - Persisting operational state (including M1 review runs and findings).
 - Exposing management operations to the UI.
-- Orchestrating agent workflows (M1: GitHub PR review).
+- Orchestrating node communication and management operations (fleet; later).
 - Coordinating communication with Node Agents (fleet; later).
 
 Node ↔ Control Plane protocol for the fleet path is **mTLS over HTTPS**
