@@ -2,18 +2,18 @@
 
 Monorepo for the Local AI Control Plane project.
 
-**Near-term product (M1):** a self-hosted GitHub PR review agent, orchestrated by
-the Control Plane API, with a reusable Python library in `packages/pr-review-agent`.
+**Near-term product (M1):** Control Plane API development — NestJS management
+API, Drizzle persistence, OpenAPI contracts, and the node-registration building
+block. The Control Plane is the primary development focus.
 
-**Longer-term direction:** a private AI fleet manager (customer nodes + control
-plane). Fleet features are deferred until after M1.
+**Longer-term direction:** reusable AI agents and the private AI fleet manager
+(customer nodes + control plane). Agent and fleet features are deferred until
+the Control Plane is demonstrable.
 
 ## Prerequisites
 
 - Node.js 24+
 - pnpm
-- Python 3.14+
-- uv
 - Docker
 - Docker Compose
 
@@ -22,12 +22,6 @@ plane). Fleet features are deferred until after M1.
 Clone the repository and install the dependencies:
 
     pnpm install
-
-Set up the reusable PR review agent (Python):
-
-    cd packages/pr-review-agent
-    uv sync
-    cd ../..
 
 Configure the local environment:
 
@@ -41,16 +35,12 @@ Configure the local environment:
     │   └── control-plane-web/     # React/Vite operator UI (scaffold)
     ├── packages/
     │   ├── contracts/             # OpenAPI contracts (spec-driven)
-    │   ├── eslint-config/
-    │   └── pr-review-agent/       # Reusable GitHub PR review library
+    │   └── eslint-config/
     ├── docs/
     ├── .github/
     ├── .env.example
     ├── docker-compose.yml
     └── README.md
-
-Optional later (create only when needed): `apps/review-agent` (thin runner),
-`apps/node-agent`, `apps/node-api`, `infrastructure/` deploy configs.
 
 ## Development
 
@@ -127,20 +117,7 @@ Run linting for a specific application:
     pnpm --filter control-plane-api run lint
     pnpm --filter control-plane-web run lint
 
-Python uses Ruff:
-
-    cd packages/pr-review-agent
-    uv run ruff check .
-    uv run ruff format --check .
-    cd ../..
-
 ## Formatting
-
-Format Python code with Ruff:
-
-    cd packages/pr-review-agent
-    uv run ruff format .
-    cd ../..
 
 TypeScript formatting is handled by Prettier at the repository root.
 
@@ -154,30 +131,11 @@ Run the API end-to-end tests (requires the local PostgreSQL container and applie
 
     pnpm --filter control-plane-api run test:e2e
 
-Run Python tests:
-
-    cd packages/pr-review-agent
-    uv run pytest
-    cd ../..
-
 ## Building
 
 Build all applications:
 
     pnpm exec turbo run build
-
-## Python Environment
-
-The reusable PR review agent uses `uv` for dependency management and Python 3.14.
-
-The lockfile (`packages/pr-review-agent/uv.lock`) is committed to the repository.
-
-    cd packages/pr-review-agent
-
-    uv sync
-    uv run pytest
-    uv run ruff check .
-    uv run ruff format --check .
 
 ## Verification
 
@@ -197,14 +155,6 @@ Run the repository lint and build checks:
 
     pnpm exec turbo run lint build
 
-Run the Python checks:
-
-    cd packages/pr-review-agent
-    uv run ruff check .
-    uv run ruff format --check .
-    uv run pytest
-    cd ../..
-
 All commands should complete successfully before submitting changes.
 
 ## Scope
@@ -215,15 +165,13 @@ All commands should complete successfully before submitting changes.
 - Local PostgreSQL via Docker Compose
 - Control Plane API with Drizzle schema/migrations
 - mTLS-backed `POST /nodes/register` (early fleet building block)
-- OpenAPI contracts package (M1 endpoints specified)
-- Reusable `pr-review-agent` package scaffold (models + tests)
+- OpenAPI contracts package (endpoints specified)
 
 ### Near-term (M1) — in progress
 
-- GitHub webhook ingestion and HMAC verification
-- Review run / findings APIs aligned to `packages/contracts`
-- PR review pipeline inside `packages/pr-review-agent`
-- Publishing findings back to GitHub
+- Control Plane management API endpoints
+- Node registration / heartbeat building blocks
+- APIs aligned to `packages/contracts`
 
 ### Deferred
 

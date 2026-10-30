@@ -11,8 +11,9 @@ versions, and ops metadata without holding customer AI data.
 
 The **near-term product (M1)** is narrower and ships first:
 
-> A self-hosted GitHub pull-request review agent, orchestrated by the Control
-> Plane, with review logic packaged so other projects can reuse it.
+> A self-hosted Control Plane management API — NestJS backend with Drizzle
+> persistence, OpenAPI contracts, and the node-registration building block.
+> The Control Plane is the primary development focus.
 
 ---
 
@@ -32,15 +33,12 @@ keeping sensitive data and reusable agent capabilities cleanly separated.
 
 ## Near-term goal (M1)
 
-Demonstrate a complete GitHub PR review vertical slice:
+Deliver a demonstrable Control Plane management API:
 
-1. GitHub webhook (or manual trigger) starts a review.
-2. `packages/pr-review-agent` analyzes the PR and produces structured findings.
-3. The Control Plane persists review runs and findings.
-4. Findings can be published back to the pull request.
-
-M1 success does **not** require a fleet of customer nodes or a local LLM on
-each node.
+1. NestJS management API skeleton and routing.
+2. Drizzle ORM persistence for operational metadata (nodes, heartbeats, versions).
+3. OpenAPI contracts in `packages/contracts` shared across language boundaries.
+4. Node registration building block (mTLS-backed).
 
 ---
 
@@ -76,9 +74,9 @@ Each node remains an independent security and data boundary.
 
 Near-term responsibilities (M1):
 
-- GitHub integration and webhook verification.
-- Review run / findings persistence.
-- Invoking or hosting the PR review agent workflow.
+- Management API endpoints and routing.
+- Node registration / operational metadata persistence.
+- Invoking or hosting agent workflows (deferred).
 - Shared OpenAPI contracts for agent-facing APIs.
 
 Longer-term responsibilities (fleet):
@@ -88,17 +86,8 @@ Longer-term responsibilities (fleet):
 - Sending authorized management operations.
 - Providing a web interface for infrastructure management.
 
-The control plane manages infrastructure and operational metadata, not the
+The Control Plane manages infrastructure and operational metadata, not the
 customer's AI business data.
-
----
-
-## Reusable agent library
-
-`packages/pr-review-agent` is a first-class deliverable, not an internal detail.
-
-It must remain installable and free of Control Plane implementation dependencies
-so other repositories can reuse the review capability.
 
 ---
 
@@ -149,13 +138,13 @@ agent library is isolated from Control Plane deployment code.
 
 ### Reproducibility
 
-Dependencies are locked (`pnpm-lock.yaml`, `uv.lock`). Environments are
+Dependencies are locked (`pnpm-lock.yaml`). Environments are
 reproducible via Docker Compose for Postgres.
 
 ### Observability
 
-The system should expose enough operational information to know whether a review
-run (and later a node) is healthy.
+The system should expose enough operational information to know whether a node
+(and later an agent) is healthy.
 
 ### Security by design
 

@@ -19,10 +19,9 @@ application or deployment unit.
 
 ## Near-term product focus
 
-**M1** delivers a GitHub PR review capability:
+**M1** delivers the Control Plane management API:
 
-- Review logic lives in `packages/pr-review-agent` (reusable library).
-- Orchestration, webhooks, and persistence live in `apps/control-plane-api`.
+- Management API endpoints and routing live in `apps/control-plane-api`.
 - Cross-language HTTP shapes live in `packages/contracts`.
 
 Fleet/node apps are documented as future targets only.
@@ -36,14 +35,12 @@ local-ai-control-plane/
 ├── apps/
 │   ├── control-plane-api/
 │   ├── control-plane-web/
-│   ├── review-agent/          # optional thin runner for this monorepo
 │   ├── node-agent/            # deferred (fleet)
 │   └── node-api/              # deferred (fleet)
 │
-├── packages/
-│   ├── contracts/             # OpenAPI / shared schemas
-│   ├── eslint-config/
-│   └── pr-review-agent/       # reusable GitHub PR review library
+    ├── packages/
+    │   ├── contracts/             # OpenAPI / shared schemas
+    │   └── eslint-config/
 │
 ├── docs/
 │   ├── architecture/
@@ -67,25 +64,17 @@ in them. Today, local Postgres is configured via root `docker-compose.yml`.
 
 ### Control Plane API
 
-Owns centralized management and M1 orchestration:
+Owns centralized management:
 
-- Webhook ingress (GitHub)
-- Review run / findings persistence
+- Management API endpoints and routing
 - Node registration (early fleet building block)
 - Operational metadata
 
-Must not contain the reusable review algorithm (that belongs in
-`packages/pr-review-agent`).
+Must not embed external service implementation code.
 
 ### Control Plane Web
 
 Operator-facing UI. Talks only to the Control Plane API.
-
-### review-agent (optional)
-
-Thin deployable runner for this monorepo that imports `pr-review-agent`. Create
-only when a separate process is needed; until then the library can be invoked
-from tests or a future worker inside the Control Plane host.
 
 ### Node Agent / Node API (deferred)
 
@@ -94,13 +83,6 @@ Fleet lifecycle and local AI runtime. Not part of M1.
 ---
 
 ## Shared Packages
-
-### `packages/pr-review-agent`
-
-Installable Python library. Other repositories may depend on it.
-
-**Must not** import Control Plane app code, Drizzle, NestJS, or this monorepo's
-secrets handling.
 
 ### `packages/contracts`
 
@@ -120,8 +102,7 @@ consumer) genuinely need them.
 1. Customer Node applications must not depend on Control Plane implementation code.
 2. Control Plane applications must not depend on Customer Node implementation code.
 3. Cross-system communication must happen through explicit interfaces or contracts.
-4. `packages/pr-review-agent` must not depend on any `apps/*` package.
-5. Apps may depend on `packages/contracts` and `packages/pr-review-agent`.
+4. Apps may depend on `packages/contracts`.
 6. Shared packages must not bypass architectural boundaries.
 7. Application business logic must not depend directly on infrastructure configuration.
 8. Documentation must not become a runtime dependency.
@@ -135,7 +116,6 @@ Control Plane
     └── TypeScript / NestJS / React
 
 Reusable agents
-    └── Python (uv) libraries such as pr-review-agent
 
 Customer Node (deferred)
     └── Python AI/ML stack
@@ -148,11 +128,8 @@ Infrastructure
 
 ## Monorepo Rationale
 
-A monorepo is used because it simplifies local development, CI, documentation,
+The monorepo is used because it simplifies local development, CI, documentation,
 and cross-component changes while M1 is built.
-
-`packages/pr-review-agent` is structured so it can be published or vendored into
-other projects without dragging Control Plane deployment units along.
 
 ---
 

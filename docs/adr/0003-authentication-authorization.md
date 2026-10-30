@@ -102,8 +102,8 @@ Roles and permissions:
 
 | Role     | Permissions                                                                                                |
 | -------- | ---------------------------------------------------------------------------------------------------------- |
-| Operator | Read node inventory, read node health, view review runs, trigger agent reviews, publish findings to GitHub |
-| Node     | Register node, send heartbeat, report health, report versions, receive management commands                 |
+| Operator | Read node inventory, read node health, view review runs (postponed), trigger agent reviews (postponed), publish findings to GitHub (postponed) |
+| Node     | Register node, send heartbeat, report health, report versions, receive management commands                                                                   |
 
 All other API endpoints require authentication. The GitHub webhook receiver (`POST /webhook/github`) is public but validates `x-hub-signature-256` against `GITHUB_WEBHOOK_SECRET`; it does not require a JWT.
 
