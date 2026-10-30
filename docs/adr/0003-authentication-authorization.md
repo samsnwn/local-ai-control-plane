@@ -100,10 +100,10 @@ Use **Option A: Mutual TLS Client Certificates** for node authentication, consis
 
 Roles and permissions:
 
-| Role     | Permissions                                                                                                |
-| -------- | ---------------------------------------------------------------------------------------------------------- |
+| Role     | Permissions                                                                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Operator | Read node inventory, read node health, view review runs (postponed), trigger agent reviews (postponed), publish findings to GitHub (postponed) |
-| Node     | Register node, send heartbeat, report health, report versions, receive management commands                                                                   |
+| Node     | Register node, send heartbeat, report health, report versions, receive management commands                                                     |
 
 All other API endpoints require authentication. The GitHub webhook receiver (`POST /webhook/github`) is public but validates `x-hub-signature-256` against `GITHUB_WEBHOOK_SECRET`; it does not require a JWT.
 

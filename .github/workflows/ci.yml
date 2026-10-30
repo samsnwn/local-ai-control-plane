@@ -10,7 +10,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
-
 jobs:
   # TypeScript static checks gate the job (fail fast). Tests use `if: always()`
   # so they still run and report when a static check fails.

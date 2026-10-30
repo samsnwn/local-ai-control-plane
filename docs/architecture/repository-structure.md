@@ -103,9 +103,9 @@ consumer) genuinely need them.
 2. Control Plane applications must not depend on Customer Node implementation code.
 3. Cross-system communication must happen through explicit interfaces or contracts.
 4. Apps may depend on `packages/contracts`.
-6. Shared packages must not bypass architectural boundaries.
-7. Application business logic must not depend directly on infrastructure configuration.
-8. Documentation must not become a runtime dependency.
+5. Shared packages must not bypass architectural boundaries.
+6. Application business logic must not depend directly on infrastructure configuration.
+7. Documentation must not become a runtime dependency.
 
 ---
 
